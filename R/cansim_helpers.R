@@ -74,16 +74,24 @@ response_error_translation <- list(
 
 get_with_timeout_retry <- function(url,timeout=200,retry=3,path=NA,warn_only=FALSE){
   if (!is.na(path)) {
-    response <- purrr::safely(httr::GET)(url,encode="json",
-                                         httr::add_headers("Content-Type"="application/json"),
-                                         httr::timeout(timeout),
-                                         httr::write_disk(path,overwrite = TRUE))
-  } else {
-    response <- purrr::safely(httr::GET)(url,
-                                         encode="json",
-                                         httr::add_headers("Content-Type"="application/json"),
-                                         httr::timeout(timeout))
-  }
+  response <- purrr::safely(function(url, path, timeout) {
+    httr2::request(url) %>%
+      httr2::req_headers("Content-Type" = "application/json") %>%
+      httr2::req_options(ssl_verifypeer = FALSE) %>%
+      httr2::req_timeout(timeout) %>%
+      httr2::req_method("GET") %>%
+      httr2::req_perform(path = path)
+  })(url, path, timeout)
+} else {
+  response <- purrr::safely(function(url, timeout) {
+    httr2::request(url) %>%
+      httr2::req_headers("Content-Type" = "application/json") %>%
+      httr2::req_options(ssl_verifypeer = FALSE) %>%
+      httr2::req_timeout(timeout) %>%
+      httr2::req_method("GET") %>%
+      httr2::req_perform()
+  })(url, timeout)
+}
   if (!is.null(response$error)){
     if (retry>0) {
       message("Got timeout from StatCan, trying again")
