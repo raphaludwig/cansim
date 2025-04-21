@@ -404,15 +404,19 @@ get_cansim <- function(cansimTableNumber, language="english", refresh=FALSE, tim
       message(paste0("Acc",intToUtf8(0x00E9),"der au produit ", cleaned_number, " CANSIM NDM de Statistique Canada"))
     url=paste0("https://www150.statcan.gc.ca/n1/tbl/csv/",file_path_for_table_language(cleaned_number,language),".zip")
     print(url)
-    response <- get_with_timeout_retry(url,path=path,timeout=timeout)
+    p1f <- tempfile()
+    response <- request(url) %>%
+      req_options(ssl_verifypeer = FALSE) %>%
+      req_perform()
+    writeBin(response$body, p1f)
     if (is.null(response)) return(response)
     data <- NA
     na_strings=c("<NA>",NA,"NA","","F")
     exdir=file.path(tempdir(),file_path_for_table_language(cleaned_number,language))
     uzp <- getOption("unzip")
     if (is.null(uzp)) uzp <- "internal"
-    utils::unzip(path,exdir=exdir,unzip=uzp)
-    unlink(path)
+    utils::unzip(p1f,exdir=exdir,unzip=uzp)
+    unlink(p1f)
     if(cleaned_language=="eng") {
       message("Parsing data")
       csv_reader <- readr::read_csv
