@@ -403,6 +403,7 @@ get_cansim <- function(cansimTableNumber, language="english", refresh=FALSE, tim
     else
       message(paste0("Acc",intToUtf8(0x00E9),"der au produit ", cleaned_number, " CANSIM NDM de Statistique Canada"))
     url=paste0("https://www150.statcan.gc.ca/n1/tbl/csv/",file_path_for_table_language(cleaned_number,language),".zip")
+    print(url)
     response <- get_with_timeout_retry(url,path=path,timeout=timeout)
     if (is.null(response)) return(response)
     data <- NA
