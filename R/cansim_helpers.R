@@ -79,6 +79,7 @@ get_with_timeout_retry <- function(url,timeout=200,retry=3,path=NA,warn_only=FAL
       # httr2::req_headers("Content-Type" = "application/json") %>%
       httr2::req_options(ssl_verifypeer = FALSE) %>%
       httr2::req_timeout(timeout) %>%
+      httr2::req_user_agent("Mozilla/5.0 (compatible; MyRBot/1.0)") |>
       httr2::req_perform(path = path)
   })(url, path, timeout)
 } else {
@@ -87,6 +88,7 @@ get_with_timeout_retry <- function(url,timeout=200,retry=3,path=NA,warn_only=FAL
       # httr2::req_headers("Content-Type" = "application/json") %>%
       httr2::req_options(ssl_verifypeer = FALSE) %>%
       httr2::req_timeout(timeout) %>%
+      httr2::req_user_agent("Mozilla/5.0 (compatible; MyRBot/1.0)") |>
       httr2::req_perform()
   })(url, timeout)
 }
